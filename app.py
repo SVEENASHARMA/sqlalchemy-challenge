@@ -18,7 +18,7 @@ def welcome():
         f"/api/v1.0/precipitation<br/r>"
         f"/api/v1.0/stations<br/r>"
         f"/api/v1.0/tobs<br/r>"
-        f"/api/v1.0/<start> and /api/v1.0/<start>/<end>"
+        f"/api/v1.0/start<br/r>"
     )
 
 #%%
@@ -96,6 +96,32 @@ def tobs():
     tobs_json = temp_obs_df.to_json(orient='records')
     conn.close()
     return tobs_json 
+
+#%%
+@app.route("/api/v1.0/start")
+def start():
+   conn = engine.connect()
+   query = f'''
+    SELECT
+        date,
+        station,
+        MIN(tobs) AS min_tobs,
+        MAX(tobs) AS max_tobs,
+        AVG(tobs) AS avg_tobs
+    FROM
+        measurement
+    WHERE
+        date >= '2016-08-01'
+    '''
+    
+   temp_obs_df = pd.read_sql(query, conn)
+   temp_obs_df
+    
+   start_json = temp_obs_df.to_json(orient='records')
+   conn.close()
+   return start_json 
+
+
 #%%
 if __name__ == '__main__':
     app.run(debug=True)    
